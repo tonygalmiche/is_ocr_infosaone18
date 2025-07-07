@@ -1,0 +1,10 @@
+#Pour API Gemini
+google-genai
+Pillow
+pdf2image
+
+#Pour API gMail
+# google-api-python-client 
+# google-auth-oauthlib 
+# google-auth-httplib2
+# requests

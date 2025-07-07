@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="is_view_company_form" model="ir.ui.view">
+            <field name="name">is_view_company_form</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="base.view_company_form"/>
+            <field name="arch" type="xml">
+                <page position="after">
+                    <page string="OCR InfoSaône">
+                        <group>
+                            <group>
+                                <field name="is_gemini_api_key"/>
+                                <field name="is_gemini_model"/>
+                                <field name="is_gemini_prompt"/>
+                            </group>
+                            <group>
+                                <field name="is_gemini_reponse"/>
+                            </group>
+                        </group>
+                    <button
+                        name="test_connexion_api"
+                        type="object"
+                        string="Test connexion API"
+                        class="oe_highlight"
+                    />
+                    <button
+                        name="get_info_ticket"
+                        type="object"
+                        string="Informations sur ticket de test"
+                        class="oe_highlight  space-left"
+                    />
+
+
+                    </page>
+                </page>
+            </field>
+        </record>
+    </data>
+</odoo>
