@@ -7,7 +7,7 @@
             <field name="inherit_id" ref="base.view_company_form"/>
             <field name="arch" type="xml">
                 <page position="after">
-                    <page string="OCR InfoSaône">
+                    <page string="API Gemini">
                         <group>
                             <group>
                                 <field name="is_gemini_api_key"/>
@@ -30,8 +30,116 @@
                         string="Informations sur ticket de test"
                         class="oe_highlight  space-left"
                     />
+                    </page>
+                    <page string="API gMail">
+                        <group>
+                            <group>
+                                <field name="is_google_mail"/>
+                                <field name="is_google_client_id"/>
+                                <field name="is_google_client_secret"/>
+                                <field name="is_google_code_autorisation"/>
+                                <field name="is_google_refresh_token"/>
+                            </group>
+                            <group>
+                                <field name="is_google_reponse"/>
+                            </group>
+                        </group>
+                        <button
+                            name="get_code_autorisation"
+                            type="object"
+                            string="get Code Autorisation"
+                            class="oe_highlight"
+                            invisible="is_google_code_autorisation != False"
+                        />
+                        <button
+                            name="get_refresh_token"
+                            type="object"
+                            string="get_refresh_token"
+                            class="oe_highlight  space-left"
+                            invisible="is_google_refresh_token != False"
+                        />
+
+                        <button
+                            name="get_access_token"
+                            type="object"
+                            string="get_access_token"
+                            class="btn btn-secondary space-left"
+                        />
+
+                        <button
+                            name="get_email_address"
+                            type="object"
+                            string="get_email_address"
+                            class="btn btn-secondary space-left"
+                        />
+                       <button
+                            name="get_mails"
+                            type="object"
+                            string="get_mails"
+                            class="btn btn-secondary space-left"
+                        />
+                       <button
+                            name="get_pieces_jointes_mails"
+                            type="object"
+                            string="get_pieces_jointes_mails"
+                            class="btn btn-secondary space-left"
+                        />
 
 
+
+
+                        
+
+                        <separator/>
+                        <div style="background-color:rgb(250,250,250)">
+                            <h2>Instructions</h2>
+                            <h3>Créer une nouveau projet</h3>
+                            - Créer une nouveau projet (en haut à gauche) sur https://console.cloud.google.com<br />
+                            - Nom du projet : ex : ocr-infosaone18<br />
+                            - Sélectionner le nouveau projet en haut à gauche<br />
+                            <br />
+                            <h3>API et services</h3>
+                            - Bouton 'API et services'<br />
+                            - Dans la zone de recherche en haut saisir gMail et activer cette API<br />
+                            - Créer un identifiant de type 'ID client OAuth'<br />
+                            <br />
+                            <h3>Écran de consentement OAuth</h3>
+                            - Menu 'API est service / Écran de consentement OAuth“<br />
+                            - Mettre un nom (ex : OCR InfoSaône) et un mail (ex : lemail@gmail.com) à l'application<br />
+                            - Cible = Externe ⇒ API utilisable uniquement pour les utilisateurs de test (lemail@gmail.com)<br />
+                            - Saisir les mail pour être averti des modifications (tony.galmiche@infosaone.com)<br />
+                            - Bouton 'Créer'<br />
+                            <br />
+                            <h3>Créer un "ID clients OAuth 2.0"</h3>
+                            - Menu “API et Servies / Identifiants”<br />
+                            - Bouton “Créer un client” en haut<br />
+                            - Type d'application : Application de bureau<br />
+                            - Nom : Client de bureau 1<br />
+                            - Télécharger le JSON contenant toutes les informations ⇒ client_secret.json<br />
+                            <br />
+                            <h3>Audience / Utilisateurs de test autorisés </h3>
+                            - Menu "API est service / Écran de consentement OAuth"<br />
+                            - Menu "Audience" sur la gauche<br />
+                            - Dans "Utilisateurs tests" ajouter un utilisateur (ex : lemail@gmail.com )<br />
+                            <br />
+                            <h3>Accès aux données</h3>
+                            - Menu “API est service / Écran de consentement OAuth”<br />
+                            - Menu “Accès aux données” sur la gauche<br />
+                            - Bouton “Ajouter ou supprimer des accès”<br />
+                            - Dans la zone de recherche saisir “gMail” et sélectionner dans la liste “https://mail.google.com/”<br />
+                            - Cela doit se mettre dans le tableau “Vos champs d'application restreints”<br />
+                            - Cliquer sur “Save” en bas<br />
+                            <br />
+                            <h3>Obtenir le code d'autorisation</h3>
+                            - Dans cet onglet renseigner les champs 'Client id' et 'Client secret'<br />
+                            - Cliquer sur le bouton 'get Code auth_url'<br />
+                            - Copier l'url indiquée dans un navigateur en navigation privée pour obtenir le code d'autorisation<br />
+                            - Coller le code d'autorisation dans cet onglet<br />
+                            <br />
+                            <h3>Obtenir le refresh_token</h3>
+                            - Le bouton 'get refresh_token' permet de demander et renseigner ce champ<br />
+                            - Ce champ est nécessaire pour que l'application puisse générer des access_token automatiquement<br />
+                        </div>
                     </page>
                 </page>
             </field>
