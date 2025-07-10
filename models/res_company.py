@@ -16,7 +16,7 @@ from email import message_from_bytes
 from email.header import decode_header
 from urllib.parse import urlencode
 from email.utils import parsedate_to_datetime
-import datetime
+from datetime import datetime, timezone
 import re
 
 
@@ -237,10 +237,106 @@ class ResCompany(models.Model):
         return imap
 
 
-    def get_mails(self):
-        imap = self._get_authenticate_imap()
+    def create_is_ocr_email(self,msg_data):
+        for obj in self:
+            email        = message_from_bytes(msg_data[0][1])
+            mail_subject = email.get('Subject', 'Sans sujet')
+            mail_from    = email.get('From', 'Expéditeur inconnu')
+            date_str     = email.get('Date', 'Date inconnue')
 
+            #** Traitement de la date *****************************************
+            mail_date_utc = False
+            try:
+                # Parser la date de l'email
+                mail_date_aware = parsedate_to_datetime(date_str)
+            except Exception:
+                # Si parsing échoue, utiliser timestamp actuel
+                mail_date_aware = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+            mail_date_utc = mail_date_aware.astimezone(timezone.utc).replace(tzinfo=None)
+            #******************************************************************
+
+            #** Création du 'is.ocr.email' ************************************
+            vals={
+                'mail_subject': mail_subject,
+                'mail_from'   : mail_from,
+                'mail_date'   : mail_date_utc,
+            }
+            mail_id=self.env['is.ocr.email'].create(vals)
+            #******************************************************************
+
+            #** Extraction du mail seul pour le user_id ***********************
+            res = re.search(r'<([^>]+)>', mail_from)
+            if res:
+                mail_from = res.group(1)
+            users=self.env['res.users'].search([
+                ('login', '=', mail_from),
+            ])
+            if users:
+                mail_id.user_id = users[0].id
+            #******************************************************************
+
+            #** Enregistrement du mail en pièce jointe ************************           
+            filename = re.sub(r'[\\/*?:"<>|]', "_", mail_subject)+'.eml' # Nettoyer le sujet pour le nom de fichier
+            vals = {
+                'name':        filename,
+                'type':        'binary',
+                'res_model':   'is.ocr.email',
+                'res_id':      mail_id.id,
+                'datas':       base64.b64encode(msg_data[0][1]),
+            }
+            attachment = self.env['ir.attachment'].create(vals)
+            #******************************************************************
+
+
+
+            # Parcourir les parties de l'email
+            for part in email.walk():
+                # Vérifier si c'est une pièce jointe
+                if part.get_content_disposition() == 'attachment':
+                    filename = part.get_filename()
+
+                    print(filename)
+
+                    if filename:
+                        # Filtrer les types de fichiers (images et PDF)
+                        file_ext = filename.lower().split('.')[-1] if '.' in filename else ''
+                        if file_ext in ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'pdf']:                                
+                            #** Création du 'is.ocr.email.ligne' **************
+                            vals={
+                                'email_id': mail_id.id,
+                                'piece_jointe'   : filename,
+                            }
+                            ligne=self.env['is.ocr.email.ligne'].create(vals)
+                            #*************************************************
+
+                            #** Enregistrement du mail en pièce jointe ************************           
+                            content = part.get_payload(decode=True)
+                            vals = {
+                                'name':        filename,
+                                'type':        'binary',
+                                'res_model':   'is.ocr.email.ligne',
+                                'res_id':      ligne.id,
+                                'datas':       base64.b64encode(content),
+                            }
+                            attachment = self.env['ir.attachment'].create(vals)
+                            print(filename,attachment)
+                            #******************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def get_mails(self):
         #** Lister les nouveaux mails non lus *********************************
+        imap = self._get_authenticate_imap()
         imap.select("INBOX")
         typ, data = imap.search(None, 'UNSEEN')
         if typ != 'OK':
@@ -265,9 +361,16 @@ class ResCompany(models.Model):
                 subject = "(sans sujet)"
             txt = f"De: {msg['From']}\nSujet: {subject}\nDate: {msg['Date']}\n---"
             reponses.append(txt)
+            self.create_is_ocr_email(msg_data)
         self.is_google_reponse = '\n'.join(reponses)
         #**********************************************************************
         imap.logout()
+
+
+
+
+
+
 
 
     def get_pieces_jointes_mails(self):
@@ -334,7 +437,7 @@ class ResCompany(models.Model):
                 date_prefix = email_date.strftime('%Y-%m-%d_%H-%M-%S')
             except Exception:
                 # Si parsing échoue, utiliser timestamp actuel
-                date_prefix = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+                date_prefix = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
             
             # Extraire l'email de l'expéditeur (nettoyer le nom d'affichage)
             sender_email = sender

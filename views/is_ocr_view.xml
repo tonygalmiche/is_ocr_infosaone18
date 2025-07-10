@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<!-- is.ocr.email form view -->
+<record id="is_ocr_email_form" model="ir.ui.view">
+    <field name="name">is.ocr.email.form</field>
+    <field name="model">is.ocr.email</field>
+    <field name="arch" type="xml">
+        <form>
+            <sheet>
+                <group>
+                    <field name="mail_subject"/>
+                    <field name="mail_from"/>
+                    <field name="mail_date"/>
+                    <field name="user_id"/>                
+                </group>
+                <group string="Pièces jointes">
+                    <field name="ligne_ids" nolabel="1">
+                        <list>
+                            <button name="action_open_form" type="object" icon="fa-search-plus" title="Ouvrir"/>
+                            <field name="piece_jointe"/>
+                        </list>
+                    </field>
+                </group>
+            </sheet>
+            <chatter/>
+        </form>
+    </field>
+</record>
+
+<!-- is.ocr.email list view -->
+<record id="is_ocr_email_list" model="ir.ui.view">
+    <field name="name">is.ocr.email.list</field>
+    <field name="model">is.ocr.email</field>
+    <field name="arch" type="xml">
+        <list>
+            <field name="mail_subject" optional="show"/>
+            <field name="mail_from" optional="show"/>
+            <field name="mail_date" optional="show"/>
+            <field name="user_id" optional="show"/>
+        </list>
+    </field>
+</record>
+
+
+<!-- is.ocr.email search view -->
+<record id="is_ocr_email_search" model="ir.ui.view">
+    <field name="name">is.ocr.email.search</field>
+    <field name="model">is.ocr.email</field>
+    <field name="arch" type="xml">
+        <search>
+            <field name="mail_subject"/>
+            <field name="mail_from"/>
+            <field name="user_id"/>
+        </search>
+    </field>
+</record>
+
+
+<!-- is.ocr.email action -->
+<record id="is_ocr_email_action" model="ir.actions.act_window">
+    <field name="name">Mails OCR</field>
+    <field name="res_model">is.ocr.email</field>
+    <field name="view_mode">list,form</field>
+    <field name="limit">100</field>
+</record>
+
+<!-- is.ocr.email menu -->
+<menuitem id="is_ocr_email_menu_root" name="OCR" sequence="10"/>
+<menuitem id="is_ocr_email_menu" name="Mails OCR" parent="is_ocr_email_menu_root" action="is_ocr_email_action" sequence="10"/>
+
+
+<!-- is.ocr.email.ligne form view -->
+<record id="is_ocr_email_ligne_form" model="ir.ui.view">
+    <field name="name">is.ocr.email.ligne.form</field>
+    <field name="model">is.ocr.email.ligne</field>
+    <field name="arch" type="xml">
+        <form>
+            <header>
+                <button 
+                    type="object" name="action_download_image" string="Télécharger l'image" 
+                    invisible="image==False"
+                />
+                <button 
+                    type="object" name="analyse_gemini_action" string="Analyse Gemini" 
+                    invisible="image==False"
+                />
+            </header>
+            <sheet>
+                <group>
+                    <field name="email_id"/>
+                    <field name="piece_jointe"/>
+                    <field name="image" widget="image"/>
+                </group>
+            </sheet>
+            <chatter/>
+        </form>
+    </field>
+</record>
+
+
+</odoo>

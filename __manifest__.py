@@ -12,16 +12,17 @@ Module OCR InfoSaône pour Odoo 18
     'website'    : 'http://www.infosaone.com',
     'depends'    : [
         'base',
+        'mail',
     ],
     'data' : [
         'security/ir.model.access.csv',
         'views/res_company_view.xml',
-        #'views/account_move_view.xml',
+        'views/is_ocr_view.xml',
         #'views/menu.xml',
     ],
     "assets": {
         'web.assets_backend': [
-            'is_ocr_infosaone18/static/src/**/*',
+            'is_ocr_infosaone18/static/src/scss/style.scss',
          ],
     },
     'installable': True,

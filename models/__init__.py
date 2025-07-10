@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 from . import res_company
-#from . import is_ocr_infosaone
+from . import is_ocr
 
